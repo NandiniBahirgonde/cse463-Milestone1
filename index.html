@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Northline – Jacket Shopping Prototype (CSE 463)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1a1a1a; --muted:#6b6b6b; --line:#e3e3e3; --bg:#ffffff; --card:#fff; --soft:#f6f6f6;
+  --brand:#1a1a1a; --brand-2:#1a1a1a; --sun:#ffd43b; --accent:#c2410c;
+  --ok:#166534; --ok-bg:#eef7f0; --warn:#8a4b00; --warn-bg:#fffbea; --err:#b42318; --err-bg:#fdf1f0;
+  --focus:#1a1a1a; --r:4px;
+  --font:"Archivo Narrow","Arial Narrow","Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 var(--font);letter-spacing:.03em}
+body,button,input,select,option,::placeholder{text-transform:uppercase}
+button,input,select{font:inherit;color:inherit;letter-spacing:inherit}
+a{color:var(--ink)}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+input[type=checkbox],input[type=radio]{accent-color:var(--ink)}
+.proto-bar{background:var(--soft);color:var(--muted);font-size:12px;padding:6px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.proto-bar b{color:var(--ink)}
+.proto-bar button{background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:var(--r);padding:3px 10px;cursor:pointer;font-size:12px}
+header.site{background:#fff;border-bottom:1px solid var(--line)}
+.hwrap{max-width:1120px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:24px}
+.logo{font-weight:700;letter-spacing:.14em;color:var(--ink);font-size:20px;text-decoration:none}
+nav.cats{display:flex;gap:18px;font-size:14px;color:var(--muted)}
+nav.cats span.on{color:var(--ink);font-weight:600;border-bottom:2px solid var(--sun);padding-bottom:2px}
+.hsp{flex:1}
+.bagbtn{background:none;border:1px solid var(--line);border-radius:var(--r);padding:6px 12px;cursor:pointer;display:flex;gap:8px;align-items:center}
+.bagcount{background:var(--ink);color:#fff;border-radius:var(--r);min-width:20px;height:20px;font-size:12px;display:inline-grid;place-items:center;padding:0 6px}
+main{max-width:1120px;margin:0 auto;padding:22px 20px}
+.crumbs{font-size:13px;color:var(--muted);margin-bottom:10px}
+.crumbs button{background:none;border:0;padding:0;color:var(--muted);cursor:pointer;text-decoration:underline}
+h1{font-size:28px;font-weight:700;margin:0 0 4px}
+h2{font-size:17px;font-weight:700;margin:0 0 10px}
+.sub{color:var(--muted);margin:0 0 16px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:var(--r);padding:11px 18px;border:1px solid var(--ink);background:var(--ink);color:#fff;font-weight:600;letter-spacing:.06em;cursor:pointer}
+.btn:hover{background:#333}
+.btn.sec{background:#fff;color:var(--ink)}
+.btn.sec:hover{background:var(--soft)}
+.btn.wide{width:100%}
+.btn[aria-disabled="true"]{background:#e6e6e6;border-color:#e6e6e6;color:#8a8a8a;cursor:not-allowed}
+.link{background:none;border:0;padding:0;color:var(--ink);text-decoration:underline;cursor:pointer;font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+/* listing */
+.listing{display:grid;grid-template-columns:230px 1fr;gap:28px}
+.filters .group{margin-bottom:18px}
+.filters h3{font-size:13px;font-weight:700;color:var(--muted);margin:0 0 8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:#fff;border-radius:var(--r);padding:5px 11px;cursor:pointer;font-size:14px}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.filters label.opt{display:flex;gap:8px;align-items:center;font-size:14px;margin:4px 0;cursor:pointer}
+.activef{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;font-size:14px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
+.pcard{background:#fff;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;cursor:pointer;text-align:left;padding:0;display:flex;flex-direction:column}
+.pcard:hover{border-color:#bdbdbd}
+.pimg{background:var(--soft);display:grid;place-items:center;aspect-ratio:4/3.4}
+.pbody{padding:12px 14px 14px;display:flex;flex-direction:column;gap:4px}
+.pname{font-weight:600}
+.price{font-weight:700}
+.was{color:var(--muted);text-decoration:line-through;font-weight:400;margin-left:6px;font-size:13px}
+.tag{display:inline-block;font-size:12px;border-radius:var(--r);padding:1px 7px;background:var(--soft);color:#444;margin-right:4px}
+.tag.warm{background:#fff3c4;color:#5c4400}
+.dots{display:flex;gap:5px;margin-top:2px}
+.dot{width:14px;height:14px;border-radius:50%;border:1px solid rgba(0,0,0,.2)}
+.avail{font-size:13px;margin-top:4px}
+.avail.ok{color:var(--ok)} .avail.part{color:var(--warn)} .avail.none{color:var(--err)}
+/* pdp */
+.pdp{display:grid;grid-template-columns:1.1fr 1fr;gap:32px}
+.pdp .hero{background:var(--soft);border-radius:var(--r);display:grid;place-items:center;aspect-ratio:1/1;position:relative}
+.hero .shown{position:absolute;left:12px;bottom:10px;font-size:12px;background:#fff;padding:3px 8px;border-radius:var(--r)}
+.optlabel{font-weight:600;margin:18px 0 8px;display:flex;justify-content:space-between;align-items:baseline}
+.optlabel span.val{font-weight:400;color:var(--muted)}
+.swatches{display:flex;gap:10px;flex-wrap:wrap}
+.sw{border:1px solid var(--line);background:#fff;border-radius:var(--r);padding:6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;width:84px;font-size:12px}
+.sw .c{width:32px;height:32px;border-radius:50%;border:1px solid rgba(0,0,0,.2)}
+.sw[aria-pressed="true"]{border:2px solid var(--ink)}
+.sw.out .c{background-image:linear-gradient(135deg,transparent 46%,#fff 46%,#fff 54%,transparent 54%)!important}
+.sw small{color:var(--err);font-size:11px;line-height:1.1;text-align:center}
+.sizes{display:flex;gap:8px;flex-wrap:wrap}
+.sz{min-width:54px;padding:10px 12px;border:1px solid #cfcfcf;border-radius:var(--r);background:#fff;cursor:pointer;font-weight:600;position:relative}
+.sz[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.sz.out{color:#9a9a9a;border-style:dashed}
+.sz.out[aria-pressed="true"]{background:#fff;color:var(--err);border:2px solid var(--err);text-decoration:line-through}
+.sz .low{display:block;font-size:10px;font-weight:500;color:var(--warn);text-decoration:none}
+.sz[aria-pressed="true"] .low{color:var(--sun)}
+.note{font-size:13px;color:var(--muted);margin-top:6px}
+.alert{border-radius:var(--r);padding:14px 16px;margin:16px 0;border:1px solid}
+.alert.err{background:var(--err-bg);border-color:#f0c2bd;color:#5c1a14}
+.alert.warn{background:var(--warn-bg);border-color:#f0dc8a;color:#3d2c00}
+.alert.ok{background:var(--ok-bg);border-color:#c4e3cd;color:#0f3d22}
+.alert.info{background:var(--soft);border-color:var(--line);color:var(--ink)}
+.alert h3{margin:0 0 6px;font-size:15px}
+.alert .alts{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 6px}
+.altbtn{display:flex;gap:8px;align-items:center;border:1px solid #cfcfcf;background:#fff;border-radius:var(--r);padding:5px 12px 5px 6px;cursor:pointer;font-size:14px;color:var(--ink)}
+.altbtn .c{width:20px;height:20px;border-radius:50%;border:1px solid rgba(0,0,0,.2)}
+.qty{display:inline-flex;align-items:center;border:1px solid #cfcfcf;border-radius:var(--r);overflow:hidden}
+.qty button{border:0;background:#fff;width:36px;height:36px;cursor:pointer;font-size:18px}
+.qty output{min-width:34px;text-align:center;font-weight:600}
+.selsum{background:var(--soft);border-radius:var(--r);padding:10px 12px;font-size:14px;margin:16px 0 10px}
+.toast{position:fixed;right:20px;top:110px;width:330px;background:#fff;border:1px solid var(--line);border-radius:var(--r);box-shadow:0 6px 20px rgba(0,0,0,.1);padding:16px;z-index:20}
+.toast .row{display:flex;gap:12px;align-items:center;margin:8px 0 12px}
+.toast .thumb{width:64px;height:64px;background:var(--soft);border-radius:var(--r);display:grid;place-items:center}
+.details{margin-top:18px;font-size:14px;color:#444}
+.details li{margin:3px 0}
+/* bag + checkout */
+.two{display:grid;grid-template-columns:1fr 340px;gap:24px;align-items:start}
+.line{display:grid;grid-template-columns:96px 1fr auto;gap:14px;padding:14px 0;border-bottom:1px solid var(--line)}
+.line:last-child{border-bottom:0}
+.line .thumb{background:var(--soft);border-radius:var(--r);display:grid;place-items:center;height:96px}
+.attrs{font-size:14px;color:#444;margin:4px 0}
+.attrs b{font-weight:600}
+.actions{display:flex;gap:14px;margin-top:8px;align-items:center}
+.sumrow{display:flex;justify-content:space-between;gap:10px;margin:6px 0;font-size:14.5px}
+.sumrow.total{font-weight:700;font-size:17px;border-top:1px solid var(--line);padding-top:10px;margin-top:10px}
+.sumrow .muted{color:var(--muted);text-align:right}
+.steps{display:flex;gap:0;margin:0 0 18px;list-style:none;padding:0}
+.steps li{flex:1;text-align:center;font-size:13px;color:var(--muted);padding:8px 4px;border-bottom:2px solid var(--line)}
+.steps li.on{color:var(--ink);font-weight:700;border-color:var(--sun)}
+.steps li.done{color:var(--ink);border-color:var(--ink)}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px}
+.form .full{grid-column:1/-1}
+.field label{display:block;font-size:13px;font-weight:600;margin-bottom:4px}
+.field input,.field select{width:100%;padding:10px 12px;border:1px solid #cfcfcf;border-radius:var(--r);background:#fff}
+.field.bad input,.field.bad select{border:2px solid var(--err);background:#fffafa}
+.field .msg{color:var(--err);font-size:13px;margin-top:4px;display:flex;gap:6px}
+.field .hint{color:var(--muted);font-size:12px;margin-top:3px}
+.ship{display:flex;gap:12px;align-items:flex-start;border:1px solid #cfcfcf;border-radius:var(--r);padding:12px 14px;margin:8px 0;cursor:pointer;background:#fff}
+.ship.sel{border:2px solid var(--ink)}
+.ship .when{font-weight:700}
+.ship .meta{font-size:13.5px;color:var(--muted)}
+.ship .fit{font-size:13px;margin-top:2px}
+.revsec{border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;margin-bottom:12px;background:#fff}
+.revsec .hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.revsec h3{margin:0;font-size:15px}
+.check{width:60px;height:60px;border-radius:50%;background:var(--ok-bg);display:grid;place-items:center;margin-bottom:10px}
+.empty{text-align:center;padding:40px}
+.statebadge{position:fixed;left:12px;bottom:12px;background:#fff;color:var(--muted);border:1px solid var(--line);font-size:12px;padding:4px 9px;border-radius:var(--r);z-index:30}
+.undo{background:var(--ink);color:#fff;border-radius:var(--r);padding:10px 14px;margin:10px 0;display:flex;justify-content:space-between;align-items:center;font-size:14px}
+.undo button{background:none;border:0;color:var(--sun);text-decoration:underline;cursor:pointer}
+.sr{position:absolute;left:-9999px}
+footer{max-width:1120px;margin:30px auto 0;padding-bottom:56px!important;padding:0 20px;color:var(--muted);font-size:12px}
+@media (max-width:820px){.listing,.pdp,.two{grid-template-columns:1fr}.form{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="proto-bar" role="note">
+  <span><b>Class prototype (CSE 463)</b> · Redesign concept of an online clothing-store purchase flow, based on an evaluation of oldnavy.com. “Northline” is fictional. Nothing is sold or charged.</span>
+  <span><button id="toggleLabels" type="button">Hide state labels</button> <button id="resetBtn" type="button">Reset prototype</button></span>
+</div>
+<header class="site">
+  <div class="hwrap">
+    <a class="logo" href="#" id="logo">NORTHLINE</a>
+    <nav class="cats" aria-label="Departments"><span>Women</span><span>Men</span><span class="on">Jackets &amp; Coats</span><span>Kids</span><span>Sale</span></nav>
+    <div class="hsp"></div>
+    <button class="bagbtn" id="bagBtn" type="button" aria-label="Bag">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 7h12l-1 13H7L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>
+      Bag <span class="bagcount" id="bagCount">0</span>
+    </button>
+  </div>
+</header>
+<main id="app" tabindex="-1"></main>
+<div id="toastHost"></div>
+<div class="statebadge" id="badge"></div>
+<footer>Prototype notes: inventory, delivery dates, tax, and payment are simulated. Use fictional information only. Reload or press “Reset prototype” to start over.</footer>
+
+<script>
+/* ---------- Data ---------- */
+const TAX = 0.086;
+const SIZES = ["XS","S","M","L","XL","XXL"];
+const COLORS = {
+  olive:{name:"Olive",hex:"#5b6b3a",family:"Green"},
+  charcoal:{name:"Charcoal",hex:"#3c4148",family:"Neutral"},
+  oatmeal:{name:"Oatmeal",hex:"#d9ccb4",family:"Neutral"},
+  navy:{name:"Navy",hex:"#1f2d4d",family:"Blue"},
+  black:{name:"Black",hex:"#16181b",family:"Black"},
+  sage:{name:"Sage",hex:"#8fa58a",family:"Green"},
+  yellow:{name:"Sun Yellow",hex:"#e9b73a",family:"Yellow"},
+  denim:{name:"Mid Wash",hex:"#5677a0",family:"Blue"},
+  heather:{name:"Heather Gray",hex:"#9aa0a6",family:"Neutral"}
+};
+// stock: "in" | "low" | "out"
+function fill(colors, overrides={}){const s={};colors.forEach(c=>{s[c]={};SIZES.forEach(z=>s[c][z]="in")});for(const k in overrides){const [c,z]=k.split("/");s[c][z]=overrides[k]}return s}
+const PRODUCTS = [
+  {id:"sherpa",name:"Sherpa-Lined Utility Jacket",price:34.99,was:49.99,warmth:"Insulated",colors:["olive","charcoal","oatmeal","navy"],
+   stock:fill(["olive","charcoal","oatmeal","navy"],{"olive/M":"out","olive/L":"low","oatmeal/XS":"out","navy/XXL":"low"}),
+   rating:4.6,reviews:312, desc:["Soft sherpa lining keeps you warm down to about 35°F","Water-repellent cotton-blend shell","Relaxed fit — true to size; size down for a closer fit","Machine wash cold"]},
+  {id:"puffer",name:"Quilted Puffer Jacket",price:64.99,was:null,warmth:"Insulated",colors:["sage","black"],
+   stock:fill(["sage","black"]),rating:4.4,reviews:188,desc:["Recycled polyester fill","Packs into its own pocket","Regular fit"]},
+  {id:"shell",name:"Packable Rain Shell",price:29.99,was:null,warmth:"Lightweight",colors:["yellow","navy"],
+   stock:fill(["yellow","navy"]),rating:4.1,reviews:96,desc:["Waterproof, not insulated","Packs into chest pocket","Regular fit"]},
+  {id:"denim",name:"Classic Denim Jacket",price:44.99,was:null,warmth:"Lightweight",colors:["denim","black"],
+   stock:fill(["denim","black"],{"black/M":"low"}),rating:4.3,reviews:221,desc:["100% cotton denim, unlined","Regular fit"]},
+  {id:"fleece",name:"Microfleece Zip Jacket",price:24.99,was:29.99,warmth:"Midweight",colors:["heather","navy"],
+   stock:fill(["heather","navy"],{"heather/M":"out","navy/M":"out","heather/L":"low"}),rating:4.0,reviews:140,desc:["Light warmth for layering","Not wind-resistant","Slim fit — size up for layering"]}
+];
+const P = id => PRODUCTS.find(p=>p.id===id);
+const SHIPPING = [
+  {id:"standard",name:"Standard",cost:5.99,days:7},
+  {id:"express",name:"Express",cost:9.99,days:3}
+];
+
+/* ---------- State ---------- */
+let S;
+function freshState(){return{
+  view:"list", filters:{size:null,families:[],maxPrice:null,warmth:[]},
+  pdp:{productId:null,color:null,size:null,qty:1,editIndex:null,returnTo:null},
+  bag:[], lastRemoved:null,
+  ship:{email:"",first:"",last:"",addr:"",city:"",state:"AZ",zip:"",phone:"",method:"standard"},
+  pay:{name:"",card:"",exp:"",cvv:"",sameAddr:true},
+  errors:{}, editingFromReview:false, order:null, toast:null
+}}
+let showLabels = !/[?&]labels=0/.test(location.search);
+
+/* ---------- Helpers ---------- */
+const $ = s => document.querySelector(s);
+const money = n => "$"+n.toFixed(2);
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
+const fmtDate = d => d.toLocaleDateString("en-US",{weekday:"long",month:"short",day:"numeric"});
+function arrival(m){return addDays(new Date(),m.days)}
+function stockOf(p,c,z){return p.stock[c][z]}
+function jacketSVG(hex,size=150,kind="sherpa"){
+  const lining = kind==="sherpa" ? `<path d="M84 34 L100 60 L116 34" fill="#f4efe6" stroke="rgba(0,0,0,.25)"/>` : "";
+  const quilt = kind==="puffer" ? `<g stroke="rgba(255,255,255,.35)" stroke-width="2"><line x1="58" y1="80" x2="142" y2="80"/><line x1="58" y1="105" x2="142" y2="105"/><line x1="58" y1="130" x2="142" y2="130"/><line x1="58" y1="155" x2="142" y2="155"/></g>`:"";
+  return `<svg width="${size}" height="${size}" viewBox="0 0 200 200" aria-hidden="true">
+   <path d="M70 30 L84 26 L100 44 L116 26 L130 30 L168 52 L182 120 L160 126 L150 92 L148 178 L52 178 L50 92 L40 126 L18 120 L32 52 Z" fill="${hex}" stroke="rgba(0,0,0,.25)" stroke-width="2"/>
+   ${lining}${quilt}
+   <line x1="100" y1="44" x2="100" y2="178" stroke="rgba(0,0,0,.3)" stroke-width="2"/>
+   <rect x="62" y="118" width="26" height="18" rx="3" fill="rgba(0,0,0,.12)"/><rect x="112" y="118" width="26" height="18" rx="3" fill="rgba(0,0,0,.12)"/>
+  </svg>`}
+function bagTotals(method){
+  const sub = S.bag.reduce((a,l)=>a+P(l.productId).price*l.qty,0);
+  const ship = method ? SHIPPING.find(m=>m.id===method).cost : 0;
+  const tax = Math.round((sub+ship)*TAX*100)/100;
+  return {sub,ship,tax,total:sub+ship+tax};
+}
+function stateId(){
+  const v=S.view;
+  if(v==="list")return["S1","Product listing"];
+  if(v==="pdp")return pdpConflict()?["S3","Product details – option unavailable (recovery)"]:["S2","Product details – choose options"];
+  if(v==="bag")return["S4","Bag review"];
+  if(v==="shipping")return["S5","Checkout – shipping & delivery"];
+  if(v==="payment")return["S6","Checkout – payment"];
+  if(v==="review")return["S7","Review order"];
+  if(v==="done")return["S8","Order confirmation"];
+}
+function pdpConflict(){const d=S.pdp;if(!d.productId||!d.color||!d.size)return false;return stockOf(P(d.productId),d.color,d.size)==="out"}
+
+/* ---------- Navigation ---------- */
+function go(view){S.view=view;S.errors={};render();window.scrollTo(0,0);$("#app").focus({preventScroll:true})}
+function openProduct(id,opts={}){
+  const p=P(id);
+  // Color defaults to the color shown in the photo (first color, or the first match for a single color-family filter).
+  // Size is never auto-selected; the shopper's filter size is marked as "Your size".
+  let color=opts.color??null;
+  if(!color){const fam=S.filters.families.length===1?S.filters.families[0]:null;color=(fam&&p.colors.find(c=>COLORS[c].family===fam))||p.colors[0];}
+  S.pdp={productId:id,color,size:opts.size??null,qty:opts.qty??1,editIndex:opts.editIndex??null,returnTo:opts.returnTo??null,yourSize:S.filters.size};
+  go("pdp");
+}
+
+/* ---------- Views ---------- */
+function vList(){
+  const f=S.filters;
+  const fam=["Green","Neutral","Blue","Black","Yellow"];
+  let items=PRODUCTS.filter(p=>{
+    if(f.families.length && !p.colors.some(c=>f.families.includes(COLORS[c].family)))return false;
+    if(f.maxPrice && p.price>f.maxPrice)return false;
+    if(f.warmth.length && !f.warmth.includes(p.warmth))return false;
+    return true;
+  });
+  const active=[];
+  if(f.size)active.push(`Size ${f.size}`);f.families.forEach(x=>active.push(x));if(f.maxPrice)active.push(`Under ${money(f.maxPrice).replace(".00","")}`);f.warmth.forEach(x=>active.push(x));
+  return `
+  <div class="crumbs">Home / Jackets &amp; Coats</div>
+  <h1>Jackets &amp; Coats</h1><p class="sub">${items.length} styles${f.size?` · showing availability in size <b>${f.size}</b>`:""}</p>
+  <div class="listing">
+   <aside class="filters" aria-label="Filters">
+    <div class="group"><h3>Your size</h3><div class="chips">${SIZES.map(z=>`<button class="chip" data-size="${z}" aria-pressed="${f.size===z}">${z}</button>`).join("")}</div>
+      <div class="note">We'll show which colors are in stock in your size.</div></div>
+    <div class="group"><h3>Color</h3>${fam.map(x=>`<label class="opt"><input type="checkbox" data-fam="${x}" ${f.families.includes(x)?"checked":""}> ${x}</label>`).join("")}</div>
+    <div class="group"><h3>Price</h3>${[30,50,75].map(v=>`<label class="opt"><input type="radio" name="mp" data-max="${v}" ${f.maxPrice===v?"checked":""}> Under $${v}</label>`).join("")}<label class="opt"><input type="radio" name="mp" data-max="" ${!f.maxPrice?"checked":""}> Any price</label></div>
+    <div class="group"><h3>Warmth</h3>${["Insulated","Midweight","Lightweight"].map(x=>`<label class="opt"><input type="checkbox" data-warm="${x}" ${f.warmth.includes(x)?"checked":""}> ${x}</label>`).join("")}</div>
+   </aside>
+   <section>
+    ${active.length?`<div class="activef">Filters: ${active.map(a=>`<span class="tag">${a}</span>`).join("")}<button class="link" id="clearF">Clear all</button></div>`:""}
+    <div class="grid">${items.map(p=>{
+      let av="";
+      if(f.size){const inC=p.colors.filter(c=>stockOf(p,c,f.size)!=="out");
+        av = inC.length===p.colors.length?`<div class="avail ok">✓ In stock in ${f.size} · all ${p.colors.length} colors</div>`
+           : inC.length?`<div class="avail part">● ${f.size}: ${inC.length} of ${p.colors.length} colors in stock</div>`
+           :`<div class="avail none">✕ Sold out in ${f.size}</div>`}
+      return `<button class="pcard" data-open="${p.id}">
+        <div class="pimg">${jacketSVG(COLORS[p.colors[0]].hex,150,p.id)}</div>
+        <div class="pbody"><div class="pname">${p.name}</div>
+        <div><span class="price">${money(p.price)}</span>${p.was?`<span class="was">${money(p.was)}</span>`:""}</div>
+        <div><span class="tag ${p.warmth==="Insulated"?"warm":""}">${p.warmth}</span><span class="tag">★ ${p.rating} (${p.reviews})</span></div>
+        <div class="dots">${p.colors.map(c=>`<span class="dot" title="${COLORS[c].name}" style="background:${COLORS[c].hex}"></span>`).join("")}</div>${av}</div></button>`}).join("") || `<div class="card">No jackets match these filters. <button class="link" id="clearF2">Clear filters</button></div>`}
+    </div>
+   </section>
+  </div>`;
+}
+function vPdp(){
+  const d=S.pdp,p=P(d.productId);
+  const conflict=pdpConflict();
+  const shownColor=d.color||p.colors[0];
+  const canAdd=d.color&&d.size&&!conflict;
+  const editing=d.editIndex!==null;
+  let reason="";
+  if(!d.color&&!d.size)reason="Choose a color and size";else if(!d.color)reason="Choose a color";else if(!d.size)reason="Choose a size";else if(conflict)reason=`Choose an available color or size`;
+  // recovery panel
+  let rec="";
+  if(conflict){
+    const altColors=p.colors.filter(c=>stockOf(p,c,d.size)!=="out");
+    const altSizes=SIZES.filter(z=>stockOf(p,d.color,z)!=="out"&&Math.abs(SIZES.indexOf(z)-SIZES.indexOf(d.size))<=1);
+    rec=`<div class="alert warn" role="alert" id="recovery">
+      <h3>${COLORS[d.color].name} is sold out in size ${d.size}</h3>
+      <div>We kept your size (${d.size}) and quantity. Pick a color that's in stock in ${d.size}:</div>
+      <div class="alts">${altColors.map(c=>`<button class="altbtn" data-altcolor="${c}"><span class="c" style="background:${COLORS[c].hex}"></span>${COLORS[c].name} in ${d.size}${stockOf(p,c,d.size)==="low"?" · few left":""}</button>`).join("")}</div>
+      ${altSizes.length?`<div style="font-size:14px">Or keep ${COLORS[d.color].name} in a nearby size: ${altSizes.map(z=>`<button class="link" data-altsize="${z}">${COLORS[d.color].name} in ${z}${stockOf(p,d.color,z)==="low"?" (few left)":""}</button>`).join(" · ")}</div>`:""}
+      <div style="font-size:13px;margin-top:8px"><button class="link" id="notify">Email me if ${COLORS[d.color].name} / ${d.size} comes back</button><span id="notifyMsg"></span></div>
+    </div>`;
+  }
+  const back = editing ? (d.returnTo==="review"?"Review order":"Bag") : "Jackets & Coats";
+  return `
+  <div class="crumbs"><button id="back">← ${back}</button></div>
+  <div class="pdp">
+   <div><div class="hero">${jacketSVG(COLORS[shownColor].hex,340,p.id)}<span class="shown">Shown in ${COLORS[shownColor].name}</span></div></div>
+   <div>
+    ${editing?`<div class="alert info" style="margin-top:0">Editing an item in your ${d.returnTo==="review"?"order":"bag"}. Changes replace the current item.</div>`:""}
+    <h1>${p.name}</h1>
+    <div style="font-size:20px;margin:4px 0"><span class="price">${money(p.price)}</span>${p.was?`<span class="was">${money(p.was)}</span> <span class="tag" style="background:#fdecea;color:#8a1c12">Sale</span>`:""}</div>
+    <div><span class="tag ${p.warmth==="Insulated"?"warm":""}">${p.warmth}</span><span class="tag">★ ${p.rating} · ${p.reviews} reviews</span></div>
+
+    <div class="optlabel">Color <span class="val">${d.color?COLORS[d.color].name:"Not selected"}</span></div>
+    <div class="swatches" role="group" aria-label="Color">${p.colors.map(c=>{
+       const out=d.size&&stockOf(p,c,d.size)==="out";
+       return `<button class="sw ${out?"out":""}" data-color="${c}" aria-pressed="${d.color===c}" aria-label="${COLORS[c].name}${out?`, sold out in ${d.size}`:""}"><span class="c" style="background:${COLORS[c].hex}"></span>${COLORS[c].name}${out?`<small>Sold out in ${d.size}</small>`:""}</button>`}).join("")}</div>
+
+    <div class="optlabel">Size <span class="val">${d.size?d.size:"Not selected"} · <button class="link" id="sizeChart">Size &amp; fit guide</button></span></div>
+    <div class="sizes" role="group" aria-label="Size">${SIZES.map(z=>{
+       const st=d.color?stockOf(p,d.color,z):"in";
+       return `<button class="sz ${st==="out"?"out":""}" data-size="${z}" aria-pressed="${d.size===z}" aria-label="${z}${st==="out"?`, sold out in ${COLORS[d.color].name}`:st==="low"?", few left":""}">${z}${st==="low"?`<span class="low">few left</span>`:st==="out"?`<span class="low" style="color:var(--err)">sold out</span>`:d.yourSize===z&&d.size!==z?`<span class="low" style="color:var(--brand-2)">your size</span>`:""}</button>`}).join("")}</div>
+    ${d.color?`<div class="note">Availability shown for ${COLORS[d.color].name}.</div>`:""}
+    <div id="fitBox"></div>
+    ${rec}
+    <div class="optlabel">Quantity</div>
+    <div class="qty"><button data-q="-1" aria-label="Decrease quantity">−</button><output>${d.qty}</output><button data-q="1" aria-label="Increase quantity">+</button></div>
+
+    <div class="selsum" aria-live="polite"><b>Your selection:</b> ${d.color?COLORS[d.color].name:"—"} · Size ${d.size||"—"} · Qty ${d.qty} · <b>${money(p.price*d.qty)}</b>
+      ${canAdd?` <span style="color:var(--ok)">✓ In stock${stockOf(p,d.color,d.size)==="low"?" (few left)":""}</span>`:""}</div>
+    <button class="btn wide" id="addBtn" aria-disabled="${!canAdd}">${editing?"Update item":"Add to bag"}</button>
+    ${!canAdd?`<div class="note" id="addReason">${reason} to ${editing?"update":"add to bag"}.</div>`:""}
+    <div class="note">Standard delivery arrives about ${fmtDate(arrival(SHIPPING[0]))} · Express about ${fmtDate(arrival(SHIPPING[1]))}</div>
+    <ul class="details">${p.desc.map(x=>`<li>${x}</li>`).join("")}</ul>
+   </div>
+  </div>`;
+}
+function vBag(){
+  if(!S.bag.length) return `<h1>Your bag</h1>${undoBar()}<div class="card empty"><p>Your bag is empty.</p><button class="btn" id="shop">Shop jackets</button></div>`;
+  const t=bagTotals(null);
+  return `<div class="crumbs"><button id="keep">← Continue shopping</button></div>
+  <h1>Your bag</h1><p class="sub">Check each item's color, size, and quantity before checkout.</p>${undoBar()}
+  <div class="two">
+   <div class="card">${S.bag.map((l,i)=>lineHTML(l,i,true)).join("")}</div>
+   <div class="card"><h2>Order summary</h2>
+     <div class="sumrow"><span>Subtotal (${S.bag.reduce((a,l)=>a+l.qty,0)} item${S.bag.reduce((a,l)=>a+l.qty,0)>1?"s":""})</span><span>${money(t.sub)}</span></div>
+     <div class="sumrow"><span>Shipping</span><span class="muted">Standard ${money(5.99)} · Express ${money(9.99)}</span></div>
+     <div class="sumrow"><span>Estimated tax (8.6%)</span><span class="muted">Calculated with shipping</span></div>
+     <div class="sumrow total"><span>Estimated total</span><span>${money(t.sub*(1+TAX)+5.99*(1+TAX))} – ${money((t.sub+9.99)*(1+TAX))}</span></div>
+     <div class="note">Range depends on the delivery speed you choose next. Express arrives about <b>${fmtDate(arrival(SHIPPING[1]))}</b>; Standard about <b>${fmtDate(arrival(SHIPPING[0]))}</b>.</div>
+     <button class="btn wide" id="checkout" style="margin-top:14px">Check out as guest</button>
+     <div class="note" style="text-align:center">No account needed. <span style="color:#8a94a0">(Sign-in is not simulated.)</span></div>
+   </div>
+  </div>`;
+}
+function undoBar(){return S.lastRemoved?`<div class="undo" role="status">Removed ${esc(P(S.lastRemoved.line.productId).name)} (${COLORS[S.lastRemoved.line.color].name}, ${S.lastRemoved.line.size}).<button id="undo">Undo</button></div>`:""}
+function lineHTML(l,i,editable,from="bag"){
+  const p=P(l.productId);
+  return `<div class="line">
+    <div class="thumb">${jacketSVG(COLORS[l.color].hex,86,p.id)}</div>
+    <div><div class="pname">${p.name}</div>
+      <div class="attrs">Color: <b>${COLORS[l.color].name}</b> &nbsp;·&nbsp; Size: <b>${l.size}</b>${!editable?` &nbsp;·&nbsp; Qty: <b>${l.qty}</b>`:""}</div>
+      ${from==="done"?"":`<div class="attrs" style="color:var(--ok)">✓ In stock${stockOf(p,l.color,l.size)==="low"?" – few left":""}</div>`}
+      ${editable?`<div class="actions"><div class="qty"><button data-lq="${i}" data-d="-1" aria-label="Decrease quantity">−</button><output>${l.qty}</output><button data-lq="${i}" data-d="1" aria-label="Increase quantity">+</button></div>
+        <button class="link" data-edit="${i}" data-from="${from}">Edit color/size</button><button class="link" data-remove="${i}">Remove</button></div>`:
+        (from==="done"?"":`<div class="actions"><button class="link" data-edit="${i}" data-from="${from}">Edit color/size/qty</button></div>`)}
+    </div>
+    <div class="price">${money(p.price*l.qty)}${l.qty>1?`<div class="note" style="font-weight:400">${money(p.price)} each</div>`:""}</div>
+  </div>`;
+}
+function steps(n){const names=["Shipping","Payment","Review"];return `<ol class="steps">${names.map((x,i)=>`<li class="${i+1===n?"on":i+1<n?"done":""}">${i+1<n?"✓ ":""}${i+1}. ${x}</li>`).join("")}</ol>`}
+function summaryCard(method,showItems=true){
+  const t=bagTotals(method);
+  return `<div class="card"><h2>Order summary</h2>
+   ${showItems?S.bag.map(l=>{const p=P(l.productId);return `<div style="display:flex;gap:10px;align-items:center;margin-bottom:10px"><div style="width:52px;height:52px;background:#f6f6f6;border-radius:4px;display:grid;place-items:center">${jacketSVG(COLORS[l.color].hex,46,p.id)}</div><div style="font-size:13.5px"><b>${p.name}</b><br>${COLORS[l.color].name} · ${l.size} · Qty ${l.qty}</div></div>`}).join(""):""}
+   <div class="sumrow"><span>Subtotal</span><span>${money(t.sub)}</span></div>
+   <div class="sumrow"><span>Shipping (${SHIPPING.find(m=>m.id===method).name})</span><span>${money(t.ship)}</span></div>
+   <div class="sumrow"><span>Estimated tax</span><span>${money(t.tax)}</span></div>
+   <div class="sumrow total"><span>Total</span><span>${money(t.total)}</span></div>
+   <div class="note">Arrives about <b>${fmtDate(arrival(SHIPPING.find(m=>m.id===method)))}</b></div></div>`;
+}
+function field(id,label,val,opts={}){
+  const e=S.errors[id];
+  return `<div class="field ${opts.full?"full":""} ${e?"bad":""}"><label for="f_${id}">${label}${opts.optional?' <span style="font-weight:400;color:var(--muted)">(optional)</span>':""}</label>
+   <input id="f_${id}" data-f="${id}" value="${esc(val)}" ${opts.type?`type="${opts.type}"`:""} ${opts.ph?`placeholder="${opts.ph}"`:""} autocomplete="off" ${e?`aria-invalid="true" aria-describedby="e_${id}"`:""}>
+   ${e?`<div class="msg" id="e_${id}">⚠ ${e}</div>`:opts.hint?`<div class="hint">${opts.hint}</div>`:""}</div>`;
+}
+function vShipping(){
+  const s=S.ship, nErr=Object.keys(S.errors).length;
+  return `<div class="crumbs"><button id="toBag">← Back to bag</button></div>
+  <h1>Checkout</h1>${steps(1)}
+  <div class="two"><div>
+   ${nErr?`<div class="alert err" role="alert"><h3>Please fix ${nErr} field${nErr>1?"s":""} below</h3>Everything else you entered has been kept.</div>`:""}
+   <div class="card"><h2>Contact &amp; shipping address</h2>
+    <div class="form">
+     ${field("email","Email (for order updates)",s.email,{full:true,type:"email",ph:"name@example.com"})}
+     ${field("first","First name",s.first)}${field("last","Last name",s.last)}
+     ${field("addr","Street address",s.addr,{full:true})}
+     ${field("city","City",s.city)}
+     <div class="field"><label for="f_state">State</label><select id="f_state" data-f="state">${["AZ","CA","CO","NM","NV","TX","UT"].map(x=>`<option ${s.state===x?"selected":""}>${x}</option>`).join("")}</select></div>
+     ${field("zip","ZIP code",s.zip,{hint:"5 digits, e.g. 85281"})}
+     ${field("phone","Phone",s.phone,{optional:true,hint:"Only used for delivery problems"})}
+    </div>
+    <div style="margin-top:6px"><button class="link" id="sample">Fill sample (fictional) address</button></div>
+   </div>
+   <div class="card" style="margin-top:16px"><h2>Delivery speed</h2>
+    ${SHIPPING.map(m=>`<label class="ship ${s.method===m.id?"sel":""}"><input type="radio" name="ship" data-ship="${m.id}" ${s.method===m.id?"checked":""} style="margin-top:4px">
+      <div style="flex:1"><div class="when">Arrives ${fmtDate(arrival(m))}</div><div class="meta">${m.name} · ${m.days} days · ${money(m.cost)}</div></div></label>`).join("")}
+   </div>
+   <div style="margin-top:16px;display:flex;gap:12px;align-items:center"><button class="btn" id="toPay">${S.editingFromReview?"Save and return to review":"Continue to payment"}</button></div>
+  </div>${summaryCard(s.method)}</div>`;
+}
+function vPayment(){
+  const p=S.pay,nErr=Object.keys(S.errors).length;
+  return `<div class="crumbs"><button id="toShip">← Back to shipping</button></div>
+  <h1>Checkout</h1>${steps(2)}
+  <div class="two"><div>
+   ${nErr?`<div class="alert err" role="alert"><h3>Please fix ${nErr} field${nErr>1?"s":""} below</h3>Your other details have been kept.</div>`:""}
+   <div class="card"><h2>Payment</h2>
+    <div class="alert info" style="margin-top:0">Simulated payment — use fictional details. Nothing is charged. Test card: 4242 4242 4242 4242.</div>
+    <div class="form">
+     ${field("name","Name on card",p.name,{full:true})}
+     ${field("card","Card number",p.card,{full:true,ph:"1234 5678 9012 3456"})}
+     ${field("exp","Expiration (MM/YY)",p.exp,{ph:"MM/YY"})}
+     ${field("cvv","Security code",p.cvv,{ph:"3 digits"})}
+    </div>
+    <label class="opt" style="display:flex;gap:8px;margin-top:10px;font-size:14px"><input type="checkbox" id="same" ${p.sameAddr?"checked":""}> Billing address is the same as shipping (${esc(S.ship.addr||"—")}, ${esc(S.ship.city||"")})</label>
+   </div>
+   <div style="margin-top:16px"><button class="btn" id="toReview">${S.editingFromReview?"Save and return to review":"Continue to review"}</button>
+   <div class="note">You'll see everything once more before placing the order.</div></div>
+  </div>${summaryCard(S.ship.method)}</div>`;
+}
+function vReview(){
+  const s=S.ship,m=SHIPPING.find(x=>x.id===s.method),t=bagTotals(s.method);
+  return `<div class="crumbs"><button id="toPay2">← Back to payment</button></div>
+  <h1>Review your order</h1>${steps(3)}
+  <div class="two"><div>
+   <div class="alert info" style="margin-top:0">Your order is <b>not placed yet</b>. Check the details below — you can change anything before placing it.</div>
+   <div class="revsec"><div class="hd"><h3>Items (${S.bag.reduce((a,l)=>a+l.qty,0)})</h3></div>${S.bag.map((l,i)=>lineHTML(l,i,false,"review")).join("")}</div>
+   <div class="revsec"><div class="hd"><h3>Delivery</h3><button class="link" data-goedit="shipping">Change</button></div>
+     <div><b>Arrives ${fmtDate(arrival(m))}</b> · ${m.name} (${money(m.cost)})</div></div>
+   <div class="revsec"><div class="hd"><h3>Ship to</h3><button class="link" data-goedit="shipping">Edit</button></div>
+     <div>${esc(s.first)} ${esc(s.last)}<br>${esc(s.addr)}<br>${esc(s.city)}, ${s.state} ${esc(s.zip)}<br><span class="note">Updates sent to ${esc(s.email)}</span></div></div>
+   <div class="revsec"><div class="hd"><h3>Payment</h3><button class="link" data-goedit="payment">Edit</button></div>
+     <div>Card ending in ${esc(S.pay.card.replace(/\D/g,"").slice(-4))} · ${esc(S.pay.name)}</div></div>
+  </div>
+  <div><div class="card"><h2>Total</h2>
+   <div class="sumrow"><span>Subtotal</span><span>${money(t.sub)}</span></div>
+   <div class="sumrow"><span>Shipping (${m.name})</span><span>${money(t.ship)}</span></div>
+   <div class="sumrow"><span>Estimated tax</span><span>${money(t.tax)}</span></div>
+   <div class="sumrow total"><span>Total</span><span>${money(t.total)}</span></div>
+   <button class="btn wide" id="place" style="margin-top:12px">Place order · ${money(t.total)}</button>
+   <div class="note" style="text-align:center">Simulated — no payment will be processed.</div></div></div>
+  </div>`;
+}
+function vDone(){
+  const o=S.order;
+  return `<div class="card" style="max-width:720px;margin:0 auto">
+   <div class="check"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="3"><path d="M5 12l5 5 9-10"/></svg></div>
+   <h1>Order placed — thank you, ${esc(o.first)}!</h1>
+   <p class="sub">Order number <b>${o.no}</b>. A confirmation was sent to <b>${esc(o.email)}</b> (simulated).</p>
+   <div class="alert ok" style="margin-top:0"><b>Status: Confirmed.</b> Arrives <b>${fmtDate(o.arrive)}</b> via ${o.method}. We'll email tracking when it ships.</div>
+   ${o.lines.map(l=>lineHTML(l,0,false,"done")).join("")}
+   <div class="sumrow total"><span>Total charged (simulated)</span><span>${money(o.total)}</span></div>
+   <h2 style="margin-top:18px">What happens next</h2>
+   <ul class="details"><li>You can cancel or change this order for 30 minutes (not simulated).</li><li>Free returns within 45 days if it doesn't fit.</li></ul>
+   <div style="display:flex;gap:10px;margin-top:14px"><button class="btn sec" id="newOrder">Start over (reset prototype)</button></div>
+  </div>`;
+}
+
+/* ---------- Render + events ---------- */
+function render(){
+  const app=$("#app");
+  app.innerHTML = ({list:vList,pdp:vPdp,bag:vBag,shipping:vShipping,payment:vPayment,review:vReview,done:vDone})[S.view]();
+  $("#bagCount").textContent=S.bag.reduce((a,l)=>a+l.qty,0);
+  const [id,name]=stateId();$("#badge").textContent=`${id} · ${name}`;$("#badge").style.display=showLabels?"block":"none";
+  $("#toggleLabels").textContent=showLabels?"Hide state labels":"Show state labels";
+  document.title=`${id} ${name} – Northline prototype`;
+  renderToast();
+  if(S.view==="pdp"&&pdpConflict()){const r=$("#recovery");if(r&&S._focusRec){r.scrollIntoView({block:"center"});S._focusRec=false}}
+}
+function renderToast(){
+  const h=$("#toastHost");
+  if(!S.toast){h.innerHTML="";return}
+  const l=S.toast,p=P(l.productId);
+  h.innerHTML=`<div class="toast" role="status"><b>✓ Added to your bag</b>
+   <div class="row"><div class="thumb">${jacketSVG(COLORS[l.color].hex,56,p.id)}</div><div style="font-size:14px"><b>${p.name}</b><br>${COLORS[l.color].name} · Size ${l.size} · Qty ${l.qty}<br>${money(p.price*l.qty)}</div></div>
+   <div style="display:flex;gap:8px"><button class="btn" id="tBag" style="flex:1">View bag (${S.bag.reduce((a,x)=>a+x.qty,0)})</button><button class="btn sec" id="tClose">Keep shopping</button></div></div>`;
+}
+function validateShip(){
+  const s=S.ship,e={};
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(s.email))e.email="Enter an email like name@example.com";
+  if(!s.first.trim())e.first="Enter a first name";
+  if(!s.last.trim())e.last="Enter a last name";
+  if(!s.addr.trim())e.addr="Enter a street address";
+  if(!s.city.trim())e.city="Enter a city";
+  if(!/^\d{5}$/.test(s.zip.trim()))e.zip= s.zip.trim()?`“${s.zip.trim()}” isn't a valid ZIP. Use 5 digits, e.g. 85281`:"Enter a 5-digit ZIP code";
+  if(s.phone.trim()&&s.phone.replace(/\D/g,"").length!==10)e.phone="Enter a 10-digit phone number or leave blank";
+  return e;
+}
+function validatePay(){
+  const p=S.pay,e={};
+  if(!p.name.trim())e.name="Enter the name on the card";
+  if(p.card.replace(/\D/g,"").length!==16)e.card="Card number should be 16 digits";
+  const m=p.exp.match(/^(\d{2})\s*\/\s*(\d{2})$/);
+  if(!m||+m[1]<1||+m[1]>12)e.exp="Use MM/YY, e.g. 08/28";
+  else{const exp=new Date(2000+ +m[2],+m[1],1);if(exp<=new Date())e.exp="This card looks expired — check the date";}
+  if(!/^\d{3,4}$/.test(p.cvv.trim()))e.cvv="Enter the 3-digit code on the back";
+  return e;
+}
+document.addEventListener("input",ev=>{
+  const f=ev.target.dataset.f;if(!f)return;
+  const tgt = S.view==="payment"?S.pay:S.ship;
+  tgt[f]=ev.target.value;
+  if(S.errors[f])delete S.errors[f]; // fixed fields stop counting as errors on the next render
+});
+document.addEventListener("change",ev=>{
+  const t=ev.target;
+  if(t.dataset.fam!==undefined){const a=S.filters.families;t.checked?a.push(t.dataset.fam):a.splice(a.indexOf(t.dataset.fam),1);render()}
+  if(t.dataset.max!==undefined){S.filters.maxPrice=t.dataset.max?+t.dataset.max:null;render()}
+  if(t.dataset.warm!==undefined){const a=S.filters.warmth;t.checked?a.push(t.dataset.warm):a.splice(a.indexOf(t.dataset.warm),1);render()}
+  if(t.dataset.ship){S.ship.method=t.dataset.ship;render()}
+  if(t.id==="same")S.pay.sameAddr=t.checked;
+  if(t.dataset.f==="state")S.ship.state=t.value;
+});
+document.addEventListener("click",ev=>{
+  const b=ev.target.closest("button,a");if(!b)return;
+  const d=b.dataset;
+  if(b.id==="logo"){ev.preventDefault();go("list");return}
+  if(b.id==="resetBtn"||b.id==="newOrder"){S=freshState();go("list");return}
+  if(b.id==="toggleLabels"){showLabels=!showLabels;render();return}
+  if(b.id==="bagBtn"||b.id==="tBag"){S.toast=null;go("bag");return}
+  if(b.id==="tClose"){S.toast=null;renderToast();return}
+  // list
+  if(S.view==="list"){
+    if(d.size){S.filters.size=S.filters.size===d.size?null:d.size;render();return}
+    if(d.open){openProduct(d.open);return}
+    if(b.id==="clearF"||b.id==="clearF2"){S.filters={size:null,families:[],maxPrice:null,warmth:[]};render();return}
+  }
+  if(S.view==="pdp"){
+    const pd=S.pdp;
+    if(b.id==="back"){const r=pd.editIndex!==null?(pd.returnTo==="review"?"review":"bag"):"list";go(r);return}
+    if(d.color){const was=pdpConflict();pd.color=d.color;S._focusRec=!was&&pdpConflict();S.toast=null;render();return}
+    if(d.size&&b.classList.contains("sz")){const was=pdpConflict();pd.size=d.size;pd.keptSize=false;S._focusRec=!was&&pdpConflict();S.toast=null;render();return}
+    if(d.altcolor){pd.color=d.altcolor;render();$("#addBtn").focus();return}
+    if(d.altsize){pd.size=d.altsize;render();$("#addBtn").focus();return}
+    if(d.q){pd.qty=Math.max(1,Math.min(5,pd.qty+ +d.q));render();return}
+    if(b.id==="notify"){$("#notifyMsg").textContent=" — Saved (simulated). Choose another option below to keep shopping.";return}
+    if(b.id==="sizeChart"){$("#fitBox").innerHTML=`<div class="alert info"><b>Fit guide (unisex, relaxed fit)</b><br>S: chest 35–37" · M: chest 38–40" · L: chest 41–43" · XL: chest 44–46"<br>Between sizes? Size down for a closer fit.</div>`;return}
+    if(b.id==="addBtn"){
+      if(b.getAttribute("aria-disabled")==="true"){const r=$("#addReason");if(r){r.style.color="var(--err)";r.style.fontWeight="600"}if(pdpConflict())$("#recovery").scrollIntoView({block:"center"});return}
+      const line={productId:pd.productId,color:pd.color,size:pd.size,qty:pd.qty};
+      if(pd.editIndex!==null){S.bag[pd.editIndex]=line;
+        // merge duplicates
+        const k=x=>x.productId+x.color+x.size;const m=[];S.bag.forEach(x=>{const f=m.find(y=>k(y)===k(x));f?f.qty+=x.qty:m.push({...x})});S.bag=m;
+        go(pd.returnTo==="review"?"review":"bag");return}
+      const ex=S.bag.find(x=>x.productId===line.productId&&x.color===line.color&&x.size===line.size);
+      ex?ex.qty+=line.qty:S.bag.push(line);
+      S.toast={...line};render();return}
+  }
+  if(S.view==="bag"){
+    if(b.id==="keep"||b.id==="shop"){go("list");return}
+    if(d.lq!==undefined){const l=S.bag[+d.lq];l.qty=Math.max(1,Math.min(5,l.qty+ +d.d));render();return}
+    if(d.remove!==undefined){const i=+d.remove;S.lastRemoved={line:S.bag[i],i};S.bag.splice(i,1);render();return}
+    if(b.id==="undo"){S.bag.splice(S.lastRemoved.i,0,S.lastRemoved.line);S.lastRemoved=null;render();return}
+    if(b.id==="checkout"){S.lastRemoved=null;S.editingFromReview=false;go("shipping");return}
+  }
+  if(d.edit!==undefined){const i=+d.edit,l=S.bag[i];openProduct(l.productId,{color:l.color,size:l.size,qty:l.qty,editIndex:i,returnTo:d.from});return}
+  if(S.view==="shipping"){
+    if(b.id==="toBag"){go("bag");return}
+    if(b.id==="sample"){Object.assign(S.ship,{email:"jordan.lee@example.com",first:"Jordan",last:"Lee",addr:"123 Palm Ave",city:"Tempe",state:"AZ",zip:"85281"});S.errors={};render();return}
+    if(b.id==="toPay"){const e=validateShip();if(Object.keys(e).length){S.errors=e;render();const f=$(".field.bad input");f&&f.focus();return}
+      go(S.editingFromReview?"review":"payment");return}
+  }
+  if(S.view==="payment"){
+    if(b.id==="toShip"){go("shipping");return}
+    if(b.id==="toReview"){const e=validatePay();if(Object.keys(e).length){S.errors=e;render();const f=$(".field.bad input");f&&f.focus();return}
+      S.editingFromReview=true;go("review");return}
+  }
+  if(S.view==="review"){
+    if(b.id==="toPay2"){go("payment");return}
+    if(d.goedit){S.editingFromReview=true;go(d.goedit);return}
+    if(b.id==="place"){const t=bagTotals(S.ship.method),m=SHIPPING.find(x=>x.id===S.ship.method);
+      S.order={no:"NL-"+(480000+Math.floor(Math.random()*19999)),email:S.ship.email,first:S.ship.first,lines:S.bag.map(x=>({...x})),total:t.total,arrive:arrival(m),method:m.name};
+      S.bag=[];go("done");return}
+  }
+});
+S=freshState();render();
+</script>
+</body>
+</html>
